@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -23,17 +22,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.gymshark.hits.R
+import coil.compose.rememberAsyncImagePainter
+import com.gymshark.hits.model.Hit
 import com.gymshark.hits.navigation.Screens
+import com.gymshark.hits.screens.SharedViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(navController: NavController, mainScreenViewModel: MainScreenViewModel) {
+fun MainScreen(navController: NavController, mainScreenViewModel: SharedViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -48,47 +49,43 @@ fun MainScreen(navController: NavController, mainScreenViewModel: MainScreenView
                     .fillMaxWidth()
             )
         }) {
-        it.calculateTopPadding()
-        var hits: List<String> = listOf("Leggins", "T-shirts", "Sweaters", "Jeans")
 
-        getHits(mainScreenViewModel)
-        MainContent(hits, navController = navController)
+
+
+
+        MainContent(getHits(mainScreenViewModel), navController = navController,it.calculateTopPadding())
     }
 }
 
 
-fun getHits(mainScreenViewModel: MainScreenViewModel): List<String> {
-    var hits: List<String> = ArrayList()
-    if (mainScreenViewModel.data.value?.data?.hits?.size!! > 0) {
-        for (i in 0 until (mainScreenViewModel.data.value.data?.hits?.size!!)) {
-            hits.plus(mainScreenViewModel.data.value?.data?.hits?.get(i)?.title)
 
-        }
-    } else {
-        return listOf("Leggins", "T-shirts", "Sweaters", "Jeans");
-    }
-    return hits
+fun getHits(vm: SharedViewModel): List<Hit> {
+ return    vm.data.value.data?.hits!!
 }
+
 
 @Composable
 fun MainContent(
-    hits: List<String>,
-    navController: NavController
+    hits: List<Hit>,
+    navController: NavController,
+    calculateTopPadding: Dp
 ) {
     Column(
         modifier = Modifier
-            .background(Color.Black)
-            .padding(top = 90.dp)
+            .background(Color.White)
+            .padding(top = 90.dp, end = 17.dp, start = 17.dp, bottom = 25.dp)
             .padding(16.dp)
+
     ) {
-        Portforlio(hits, onitemClick = {
-            navController.navigate(route = Screens.DetailScreen.name + "/$it")
+
+        Portfolio( hits, onitemClick = {
+            navController.navigate(route = Screens.DetailScreen.name + "/${hits.indexOf(it)}")
         })
     }
 }
 
 @Composable
-fun Portforlio(data: List<String>, onitemClick: (String) -> Unit) {
+fun Portfolio(data: List<Hit>, onitemClick: (Hit) -> Unit) {
     LazyColumn {
         items(data) {
             Card(
@@ -108,46 +105,52 @@ fun Portforlio(data: List<String>, onitemClick: (String) -> Unit) {
                     CreateProjectPic(
                         modifier = Modifier
                             .size(50.dp)
-                            .padding(3.dp)
+                            .padding(3.dp), it
                     )
                     Column(
                         modifier = Modifier
                             .padding(7.dp)
                             .align(alignment = Alignment.CenterVertically)
                     ) {
-                        Text(it, fontWeight = FontWeight.Bold)
-                        Text("great product")
-                        Text("great product")
-                        Text("great product")
+                        Text(it.title, fontWeight = FontWeight.Bold)
+                        Text(it.type)
+                        Text(it.colour)
+                        if(it.labels!=null) {
+                            if (it.labels.isNotEmpty()) {
+                                it.labels.forEach {
+                                    Text(it,color = Color.Red)
+                                }
+                            }
+                        }
                     }
 
+
                 }
-
-
             }
         }
     }
 }
 
-@Composable
-fun CreateProjectPic(modifier: Modifier) {
-    Surface(
-        modifier = modifier.clickable {
+    @Composable
+    fun CreateProjectPic(modifier: Modifier, hit: Hit) {
+        Surface(
+            modifier = modifier.clickable {
 
-        },
-        shape = CircleShape,
+            },
+            shape = RectangleShape,
 
-        border = BorderStroke(0.5.dp, color = Color.White),
-        tonalElevation = 4.dp,
+            border = BorderStroke(0.5.dp, color = Color.White),
+            tonalElevation = 4.dp,
 
-        ) {
+            ) {
 
+            Image(
 
-        Image(
-            painterResource(id = R.drawable.baseline_person_pin_24),
-            contentDescription = null,
-            Modifier.fillMaxWidth()
-        )
-    }
+                rememberAsyncImagePainter(model = hit.featuredMedia.src),
+                contentDescription = null,
+                Modifier.fillMaxWidth()
+            )
+        }
+
 }
 

@@ -1,12 +1,6 @@
 package com.gymshark.hits.screens.detail
 
-import android.net.Uri
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,8 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -26,30 +22,36 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.gymshark.hits.model.Hit
 import com.gymshark.hits.navigation.Screens
-import coil.compose.AsyncImage
+import com.gymshark.hits.screens.SharedViewModel
+import com.gymshark.hits.widgets.ImageSlider
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Element
 
 @Composable
-fun DetailScreen(navController: NavController, hitName: String?) {
+fun DetailScreen(navController: NavController, hitID: Int, vm: SharedViewModel) {
 //    val activity = LocalContext.current as Activity
 //    activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
     val buttonClickedState = remember {
         mutableStateOf(true)
     }
-
-    Surface(modifier = Modifier.fillMaxSize()) {
+    val scrollState = rememberScrollState()
+    Surface(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .padding(25.dp),
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -70,24 +72,25 @@ fun DetailScreen(navController: NavController, hitName: String?) {
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    var imageUri by remember {
-                        mutableStateOf<Uri?>(null)
-                    }
-                    val picker = rememberLauncherForActivityResult(
-                        contract = ActivityResultContracts.PickVisualMedia()
-                    ) {
-                        imageUri = it
+//                    var imageUri by remember {
+//                        mutableStateOf<Uri?>(null)
+//                    }
+//                    val picker = rememberLauncherForActivityResult(
+//                        contract = ActivityResultContracts.PickVisualMedia()
+//                    ) {
+//                        imageUri = it
+//
+//                    }
 
-                    }
                     CreateProfilePic(
                         modifier = Modifier
-                            .size(150.dp)
-                            .padding(12.dp), picker, imageUri
+                            .size(350.dp)
+                            .padding(12.dp),  getImageList(hitID, vm)
                     )
                     Divider(
                         thickness = 3.dp
                     )
-                    CreateProfileInfo(hitName)
+                    CreateProfileInfo(getItem(hitID, vm))
                     Button(onClick = {
                         buttonClickedState.value = !buttonClickedState.value
 
@@ -101,7 +104,10 @@ fun DetailScreen(navController: NavController, hitName: String?) {
 
                     }
                     if (!buttonClickedState.value) {
-                        navController.popBackStack(route = Screens.MainScreen.name, inclusive = false)
+                        navController.popBackStack(
+                            route = Screens.MainScreen.name,
+                            inclusive = false
+                        )
                     } else {
                         Box {}
                     }
@@ -111,56 +117,94 @@ fun DetailScreen(navController: NavController, hitName: String?) {
         }
 
     }
+}
 
+fun getImageList(hitID: Int, vm: SharedViewModel): List<String>? {
+ val hit:Hit?=   getItem(hitID, vm)
+ val imageList:MutableList<String> = mutableListOf()
+    hit?.media?.forEach {
+        imageList.add(it.src)
+    }
+    return imageList
 
 
 }
+
+
+fun getItem(hitID: Int, vm: SharedViewModel): Hit? {
+    return vm.data.value.data?.hits?.get(hitID) ?: null
+}
+
+@Composable
+fun CreateText(tfontsize: TextStyle, tcolor: Color, text: String) {
+    Text(text = text, color = tcolor, style = tfontsize)
+}
+
 @Composable
 fun CreateProfilePic(
     modifier: Modifier,
-    picker: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>,
-    imageUri: Uri?
+
+    imageUri: List<String>?
 ) {
 
     Surface(
-        modifier = modifier.clickable {
-            picker.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
-        },
+
         shape = RectangleShape,
 
         border = BorderStroke(0.5.dp, color = Color.White),
         tonalElevation = 4.dp,
 
         ) {
+        if (imageUri != null) {
+            ImageSlider(imageUri)
+        }
 
-
-        AsyncImage(
-            model = imageUri, contentDescription = null,
-            contentScale = ContentScale.Crop, modifier = Modifier.fillMaxWidth()
-        )
     }
 }
 
 @Composable
-private fun CreateProfileInfo(hitName: String?) {
+private fun CreateProfileInfo(hit: Hit?) {
     Column(
         modifier = Modifier.padding(0.5.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         CreateText(
-            MaterialTheme.typography.headlineLarge, Color.Blue, hitName?:"Awesome Item"
+            MaterialTheme.typography.headlineLarge, Color.Blue, hit?.title ?: "Awesome Item"
         )
+        if (hit?.availableSizes?.isNotEmpty() == true) {
+            var str = StringBuilder()
+            hit.availableSizes.forEach {
+                str.append(it.size.uppercase()).append(", ")
+            }
+
         CreateText(
             MaterialTheme.typography.bodyLarge,
             Color.Black,
-            "Awesome Item"
+           str.toString().removeSuffix(", ")
         )
-        CreateText(MaterialTheme.typography.labelLarge, Color.Black, "Awesome tiem")
+    }
+        CreateText(
+            MaterialTheme.typography.labelLarge,
+            Color.Black,
+            parseElement(Jsoup.parse(hit?.description ?: "Awesome item").body())
+        )
     }
 }
-@Composable
-fun CreateText(tfontsize: TextStyle, tcolor: Color, text: String) {
-    Text(text = text, color = tcolor, style = tfontsize)
+
+fun parseElement(element: Element): String {
+
+    val builder = StringBuilder()
+    element.children().forEach { child ->
+        if (child.text().startsWith("-")) {
+            builder.append("\n")
+        }
+        when (child.tagName()) {
+            "p" -> builder.append(child.text()).append("\n")
+            "strong" -> builder.append("**").append(child.text()).append("**").append("\n")
+            "br" -> builder.append("\n")
+            else -> builder.append(parseElement(child))
+        }
+    }
+    return builder.toString().trim()
 }
+
