@@ -4,17 +4,11 @@ import android.content.Context
 import com.gymshark.hits.network.HitsAPI
 import com.gymshark.hits.repository.HitsRepository
 import com.gymshark.hits.utils.Constants.BASE_URL
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.internal.Contexts
-import dagger.hilt.components.SingletonComponent
+import okhttp3.Cache
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
-import javax.inject.Singleton
 
 //@Module
 //@InstallIn(SingletonComponent::class)
@@ -32,20 +26,27 @@ import javax.inject.Singleton
 //    }
 //}
 
-interface AppModule{
-    val provideHitsApi:HitsAPI
-val provideHitsRepository: HitsRepository
+interface AppModule {
+    val provideHitsApi: HitsAPI
+    val provideHitsRepository: HitsRepository
 
 }
 
-class AppModuleImpl(private val appContext: Context):AppModule{
+class AppModuleImpl(hitsApplication: Context) : AppModule {
+
+    private val annotationInterceptor = AnnotationInterceptor()
+    private val cacheSize = (5 * 1024 * 1024).toLong()
+
+    private val client = OkHttpClient().newBuilder().apply {
+        addInterceptor(annotationInterceptor)
+    }.cache(Cache(hitsApplication.cacheDir, cacheSize))
+        .build()
+
     override val provideHitsApi: HitsAPI by lazy {
-        val moshi = Moshi.Builder() // adapter
-            .add(KotlinJsonAdapterFactory())
-            .build()
         Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .addConverterFactory(GsonConverterFactory.create()) //TODO findout why moshi is not working
+            .client(client)
             .build()
             .create(HitsAPI::class.java)
     }
