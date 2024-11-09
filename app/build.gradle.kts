@@ -108,7 +108,8 @@ dependencies {
 
     // Coil
     implementation("io.coil-kt:coil-compose:2.7.0")
-
+    //html to string
+     implementation ("org.jsoup:jsoup:1.14.3")
     //Room
     implementation ("androidx.room:room-runtime:2.3.0")
     annotationProcessor ("androidx.room:room-compiler:2.3.0")

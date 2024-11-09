@@ -8,9 +8,11 @@ import java.util.concurrent.TimeUnit
 
 class AnnotationInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        var request = chain.request()
+        val request = chain.request()
         // Check if the request has the @Invocation annotation
-        chain.request().tag(Invocation::class.java) ?: return chain.proceed(chain.request())
+        if (chain.request()
+                .tag(Invocation::class.java) != null
+        ) return chain.proceed(chain.request())
         //  add the Cache-Control
         val cacheControl = CacheControl.Builder()
             .maxAge(10, TimeUnit.DAYS)
@@ -18,6 +20,7 @@ class AnnotationInterceptor : Interceptor {
         return chain.proceed(request).newBuilder()
             .header("Cache-Control", cacheControl.toString())
             .build()
+
 
     }
 

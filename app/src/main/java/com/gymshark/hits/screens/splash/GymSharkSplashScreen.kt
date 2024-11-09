@@ -60,7 +60,7 @@ fun GymSharkSplashScreen(navController: NavController) {
           ) {
 
         Column(
-            modifier = Modifier.padding(1.dp).fillMaxSize(),
+            modifier = Modifier.padding(it.calculateTopPadding()).fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
