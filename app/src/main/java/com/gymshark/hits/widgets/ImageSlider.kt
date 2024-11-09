@@ -14,11 +14,13 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
+import coil.compose.AsyncImage
 
 
 @Composable
 fun ImageSlider(imageUrls: List<String>) {
-    LazyRow {
+    LazyRow(modifier = Modifier.aspectRatio(462f/ 551f)) {
         items(imageUrls) { imageUrl ->
             ImageCard(imageUrl)
         }
@@ -34,11 +36,11 @@ fun ImageCard(imageUrl: String) {
                 .fillMaxSize(),
 
         ) {
-            Image(
-                painter = rememberAsyncImagePainter(model = imageUrl),
+            AsyncImage(
+               model = imageUrl,
                 contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
+                modifier = Modifier.fillMaxSize().aspectRatio(462f/ 551f),
+                contentScale = ContentScale.Fit
             )
         }
     }
