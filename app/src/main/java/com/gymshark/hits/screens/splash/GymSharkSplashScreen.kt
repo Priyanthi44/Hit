@@ -1,16 +1,17 @@
 package com.gymshark.screens.splash
 
 import android.view.animation.OvershootInterpolator
-import androidx.compose.animation.core.Animation
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,11 +32,11 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun GymSharkSplashScreen(navController: NavController) {
-val scale = remember{
-    androidx.compose.animation.core.Animatable(0f)
+    val scale = remember {
+        androidx.compose.animation.core.Animatable(0f)
 
-}
-    LaunchedEffect(key1 = true,block ={
+    }
+    LaunchedEffect(key1 = true, block = {
         scale.animateTo(
             targetValue = 0.9f,
             animationSpec = tween(
@@ -50,34 +51,53 @@ val scale = remember{
         navController.navigate(Screens.MainScreen.name)
 
     })
-        
 
-    Surface(
-        modifier =
-        Modifier
-            .padding(15.dp)
-            .size(330.dp)
-            .scale(scale.value)
-            ,
-        shape = CircleShape,
-        color = Color.White,
-        border = BorderStroke(width = 2.dp, color = Color.LightGray),
-        shadowElevation = 5.dp,
+    Scaffold ( contentColor = Color.White,
+        modifier = Modifier
+            .padding(12.dp)
+            .fillMaxSize(1f)
 
+          ) {
 
-    ) {
         Column(
-            modifier = Modifier.padding(1.dp),
+            modifier = Modifier.padding(1.dp).fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
         ) {
-            Image(painter = painterResource(id = R.drawable.splash),
-                contentDescription ="GymShark Splash",
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.size(95.dp),
-                alignment = Alignment.Center
-            )
-            Text(text = "Hits", style = MaterialTheme.typography.headlineSmall,color = Color.DarkGray)
+
+
+            Surface(
+                modifier =
+                Modifier
+                    .padding(15.dp)
+                    .size(330.dp)
+                    .scale(scale.value),
+                shape = CircleShape,
+                color = Color.White,
+                border = BorderStroke(width = 2.dp, color = Color.LightGray),
+                shadowElevation = 5.dp,
+
+
+                ) {
+                Column(
+                    modifier = Modifier.padding(1.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.splash),
+                        contentDescription = "GymShark Splash",
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.size(95.dp),
+                        alignment = Alignment.Center
+                    )
+                    Text(
+                        text = "Hits",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = Color.DarkGray
+                    )
+                }
+            }
         }
     }
 

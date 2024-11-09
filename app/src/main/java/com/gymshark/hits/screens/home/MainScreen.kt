@@ -51,13 +51,13 @@ fun MainScreen(navController: NavController, mainScreenViewModel: MainScreenView
         it.calculateTopPadding()
         var hits: List<String> = listOf("Leggins", "T-shirts", "Sweaters", "Jeans")
 
-
+        getHits(mainScreenViewModel)
         MainContent(hits, navController = navController)
     }
 }
 
 
-fun getHits(mainScreenViewModel: MainScreenViewModel, hits: List<String>): List<String> {
+fun getHits(mainScreenViewModel: MainScreenViewModel): List<String> {
     var hits: List<String> = ArrayList()
     if (mainScreenViewModel.data.value?.data?.hits?.size!! > 0) {
         for (i in 0 until (mainScreenViewModel.data.value.data?.hits?.size!!)) {

@@ -23,7 +23,6 @@ fun HitsNavigationHost(navController: NavHostController, viewModel: MainScreenVi
         startDestination = Screens.Splash.name
     ) {
         composable(Screens.Splash.name) {
-            //val mainScreenViewModel = hiltViewModel<MainScreenViewModel>()
             GymSharkSplashScreen(navController)
         }
         composable(Screens.MainScreen.name) {
