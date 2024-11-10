@@ -22,11 +22,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
+import com.gymshark.hits.R
 import com.gymshark.hits.model.Hit
 import com.gymshark.hits.navigation.Screens
 import com.gymshark.hits.screens.SharedViewModel
@@ -51,16 +54,17 @@ fun MainScreen(navController: NavController, mainScreenViewModel: SharedViewMode
         }) {
 
 
-
-
-        MainContent(getHits(mainScreenViewModel), navController = navController,it.calculateTopPadding())
+        MainContent(
+            getHits(mainScreenViewModel),
+            navController = navController,
+            it.calculateTopPadding()
+        )
     }
 }
 
 
-
 fun getHits(vm: SharedViewModel): List<Hit> {
- return    vm.data.value.data?.hits!!
+    return vm.data.value.data?.hits!!
 }
 
 
@@ -78,7 +82,7 @@ fun MainContent(
 
     ) {
 
-        Portfolio( hits, onitemClick = {
+        Portfolio(hits, onitemClick = {
             navController.navigate(route = Screens.DetailScreen.name + "/${hits.indexOf(it)}")
         })
     }
@@ -115,10 +119,10 @@ fun Portfolio(data: List<Hit>, onitemClick: (Hit) -> Unit) {
                         Text(it.title, fontWeight = FontWeight.Bold)
                         Text(it.type)
                         Text(it.colour)
-                        if(it.labels!=null) {
+                        if (it.labels != null) {
                             if (it.labels.isNotEmpty()) {
                                 it.labels.forEach {
-                                    Text(it,color = Color.Red)
+                                    Text(it, color = Color.Red)
                                 }
                             }
                         }
@@ -131,26 +135,26 @@ fun Portfolio(data: List<Hit>, onitemClick: (Hit) -> Unit) {
     }
 }
 
-    @Composable
-    fun CreateProjectPic(modifier: Modifier, hit: Hit) {
-        Surface(
-            modifier = modifier.clickable {
+@Composable
+fun CreateProjectPic(modifier: Modifier, hit: Hit) {
+    Surface(
+        modifier = modifier.clickable {
 
-            },
-            shape = RectangleShape,
+        },
+        shape = RectangleShape,
 
-            border = BorderStroke(0.5.dp, color = Color.White),
-            tonalElevation = 4.dp,
+        border = BorderStroke(0.5.dp, color = Color.White),
+        tonalElevation = 4.dp,
 
-            ) {
-
-            Image(
-
-                rememberAsyncImagePainter(model = hit.featuredMedia.src),
-                contentDescription = null,
-                Modifier.fillMaxWidth()
-            )
-        }
-
+        ) {
+        AsyncImage(
+            model = hit.featuredMedia.src,
+            error = painterResource(id = R.drawable.soon),
+            contentDescription = null,
+            modifier =Modifier.fillMaxWidth()
+        )
+    }
 }
+
+
 
