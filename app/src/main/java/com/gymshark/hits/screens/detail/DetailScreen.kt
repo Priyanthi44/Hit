@@ -34,6 +34,7 @@ import androidx.navigation.NavController
 import com.gymshark.hits.model.Hit
 import com.gymshark.hits.navigation.Screens
 import com.gymshark.hits.screens.SharedViewModel
+import com.gymshark.hits.utils.ParseElements
 import com.gymshark.hits.widgets.ImageSlider
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
@@ -50,7 +51,7 @@ fun DetailScreen(navController: NavController, hitID: Int, vm: SharedViewModel) 
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(scrollState)
-            .padding(25.dp),
+            .padding(30.dp),
     ) {
         Column(
             modifier = Modifier
@@ -85,7 +86,7 @@ fun DetailScreen(navController: NavController, hitID: Int, vm: SharedViewModel) 
                     CreateProfilePic(
                         modifier = Modifier
                             .size(350.dp)
-                            .padding(12.dp),  getImageList(hitID, vm)
+                            .padding(12.dp), getImageList(hitID, vm)
                     )
                     Divider(
                         thickness = 3.dp
@@ -120,8 +121,8 @@ fun DetailScreen(navController: NavController, hitID: Int, vm: SharedViewModel) 
 }
 
 fun getImageList(hitID: Int, vm: SharedViewModel): List<String>? {
- val hit:Hit?=   getItem(hitID, vm)
- val imageList:MutableList<String> = mutableListOf()
+    val hit: Hit? = getItem(hitID, vm)
+    val imageList: MutableList<String> = mutableListOf()
     hit?.media?.forEach {
         imageList.add(it.src)
     }
@@ -157,6 +158,8 @@ fun CreateProfilePic(
         ) {
         if (imageUri != null) {
             ImageSlider(imageUri)
+        }else{
+            println("no url")
         }
 
     }
@@ -177,34 +180,19 @@ private fun CreateProfileInfo(hit: Hit?) {
                 str.append(it.size.uppercase()).append(", ")
             }
 
-        CreateText(
-            MaterialTheme.typography.bodyLarge,
-            Color.Black,
-           str.toString().removeSuffix(", ")
-        )
-    }
+            CreateText(
+                MaterialTheme.typography.bodyLarge,
+                Color.Black,
+                str.toString().removeSuffix(", ")
+            )
+        }
         CreateText(
             MaterialTheme.typography.labelLarge,
             Color.Black,
-            parseElement(Jsoup.parse(hit?.description ?: "Awesome item").body())
+            ParseElements().parseElement(Jsoup.parse(hit?.description ?: "Awesome item").body())
         )
     }
 }
 
-fun parseElement(element: Element): String {
 
-    val builder = StringBuilder()
-    element.children().forEach { child ->
-        if (child.text().startsWith("-")) {
-            builder.append("\n")
-        }
-        when (child.tagName()) {
-            "p" -> builder.append(child.text()).append("\n")
-            "strong" -> builder.append("**").append(child.text()).append("**").append("\n")
-            "br" -> builder.append("\n")
-            else -> builder.append(parseElement(child))
-        }
-    }
-    return builder.toString().trim()
-}
 
