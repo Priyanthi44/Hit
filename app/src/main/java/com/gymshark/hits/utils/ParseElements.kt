@@ -9,12 +9,17 @@ class ParseElements {
 
         val builder = StringBuilder()
         element.children().forEach { child ->
+            if (child.text().trim().startsWith("-") ){
+                builder.append("\n").append(child.text()).append("\n")
+            }else {
+                when (child.tagName()) {
+                    "p" -> builder.append(child.text()).append("\n")
+                    "strong" -> builder.append("<b>").append(child.text()).append("</b>")
+                        .append("\n")
 
-            when (child.tagName()) {
-                "p" -> builder.append(child.text()).append("\n")
-                "strong" -> builder.append("<b>").append(child.text()).append("</b>").append("\n")
-                "br" -> builder.append("\n")
-                else -> builder.append(child.text())
+                    "br" -> builder.append("\n")
+                    else -> builder.append(child.text())
+                }
             }
 
 

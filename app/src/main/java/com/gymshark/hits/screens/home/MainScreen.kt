@@ -106,9 +106,9 @@ fun Portfolio(data: List<Hit>, onitemClick: (Hit) -> Unit) {
                 Row(
                     modifier = Modifier.padding(8.dp),
                 ) {
-                    CreateProjectPic(
+                    CreateProductPic(
                         modifier = Modifier
-                            .size(50.dp)
+                            .size(80.dp)
                             .padding(3.dp), it
                     )
                     Column(
@@ -136,11 +136,9 @@ fun Portfolio(data: List<Hit>, onitemClick: (Hit) -> Unit) {
 }
 
 @Composable
-fun CreateProjectPic(modifier: Modifier, hit: Hit) {
+fun CreateProductPic(modifier: Modifier, hit: Hit) {
     Surface(
-        modifier = modifier.clickable {
-
-        },
+        modifier = modifier,
         shape = RectangleShape,
 
         border = BorderStroke(0.5.dp, color = Color.White),
